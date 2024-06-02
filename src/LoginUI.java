@@ -3,12 +3,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class LoginInterface extends JFrame implements ActionListener {
+public class LoginUI extends JFrame implements ActionListener {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton LoginUIButton, signUpButton;
 
-    public LoginInterface() {
+    public LoginUI() {
         setTitle("Green Zone Connect");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -69,3 +69,4 @@ public class LoginInterface extends JFrame implements ActionListener {
         }
     }
 }
+

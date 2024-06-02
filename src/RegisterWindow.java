@@ -11,7 +11,7 @@ public class RegisterWindow extends JFrame {
     private JPasswordField passwordField;
     private JTextField addressField;
     private JTextField phoneField;
-    private Controller Controller;
+    private Controller myController;
 
     public RegisterWindow() {
         setTitle("Register");
@@ -21,7 +21,7 @@ public class RegisterWindow extends JFrame {
         setLocationRelativeTo(null); // Center the window
 
         // Initialize the Controller
-        Controller = new Controller();
+        myController = new Controller();
 
         // Main Panel
         JPanel mainPanel = new JPanel(new GridBagLayout());
@@ -113,7 +113,7 @@ public class RegisterWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                new LoginInterface();
+                new LoginUI();
             }
         });
 
@@ -136,7 +136,7 @@ public class RegisterWindow extends JFrame {
                 data[5]  = phoneField.getText();
 
                 // Use Controller to handle registration
-               boolean success = Controller.registerUser(data);
+               boolean success = myController.registerUser(data);
                 if (success) {
                     JOptionPane.showMessageDialog(RegisterWindow.this, "Account created successfully!");
                     clearForm();

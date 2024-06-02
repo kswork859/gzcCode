@@ -49,7 +49,7 @@ public class GreenZoneDashboard extends JFrame {
                         // Action for Contact Us link
                     } else if (link.equals("Logout")) {
                         dispose();
-                        new LoginInterface();
+                        new LoginUI();
                     }
                 }
             });
