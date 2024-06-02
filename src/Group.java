@@ -1,3 +1,4 @@
+package src;
 public class Group {
     public void searchMyGroup(String groupName) {
         // Method body

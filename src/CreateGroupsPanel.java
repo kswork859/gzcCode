@@ -1,3 +1,4 @@
+package src;
 //import javax.sound.sampled.Control;
 import javax.swing.*;
 import java.awt.*;

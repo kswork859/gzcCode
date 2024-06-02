@@ -1,3 +1,4 @@
+package src;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -112,7 +113,7 @@ public class RegisterWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                new LoginUI();
+                new LoginInterface();
             }
         });
 

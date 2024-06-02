@@ -1,3 +1,4 @@
+package src;
 public class Admin{
     public void areaDetails(int areaID, String country, String city, String town)
     {
