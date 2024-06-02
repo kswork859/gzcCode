@@ -1,4 +1,10 @@
 package src;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class User {
     private String userName;
     private String userID;
@@ -14,70 +20,67 @@ public class User {
 
     // joinGroup method
 
-  public void joinGroup(String[] info) {
+    public void joinGroup(String[] info) {
         System.out.println("This is Joined Group Function");
     }
 
     public boolean loginToAcc(String[] data) {
-        userID = data[0];
-        userPassword = data[1];
-        String dbUserID = "Khurram";
-        String dbPassword = "12345";
-        if (userID.equals(dbUserID) && userPassword.equals(dbPassword)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    public boolean registerUser(String[] data)
-    {
-        userID = data[0];
-        userName = data[1];
-        userEmail = data[2];
-        userPassword = data[3];
-        userAddress = data[4];
-        userPhone = data[5];
+    String userID = data[0];
+    String userPassword = data[1];
+    
+    try (Connection connection = DatabaseConnection.getConnection()) {
+        String sql = "SELECT userpassword FROM users WHERE userid = ?";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, userID);
 
-        System.out.println("data has arrived in user.Register function");
-        return true;
+        ResultSet resultSet = statement.executeQuery();
+
+        if (resultSet.next()) {
+            String dbPassword = resultSet.getString("userpassword");
+            if (userPassword.equals(dbPassword)) {
+                return true; // Successful login
+            } else {
+                System.out.println("Invalid password");
+            }
+        } else {
+            System.out.println("User not found");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace(); // Handle the exception appropriately
     }
+    
+    return false; // Login failed
 }
 
-// public static void main(String[] args) {
-// // Create a user
-// User user = new User("John", 123, "john@example.com", "1234567890",
-// "password");
 
-// // Launch the GUI for joining group
-// new JoinGroupUI(user).setVisible(true);
-// }
-// }
+    public boolean registerUser(String[] data) {
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            System.out.println("this is my name");
+            String sql = "INSERT INTO users (userid, username, useremail, useraddress, userpassword, userphone) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
 
-/*
- * public void userData(String userName, String userEmail, String userPassword,
- * String userAddress, int userPhone ){
- * 
- * }
- * public void login(int userID, String userPassword){
- * 
- * }
- * public void logout(){
- * 
- * }
- * public void register(){
- * 
- * }
- * public void markparticipation(){
- * 
- * }
- * public void uploadMultimedia(String mediaLink, String caption){
- * 
- * }
- * public void organizedActivity(int groupID, String activityName, String
- * areaAddress ){
- * 
- * }
- * public void selectGroup(){
- * 
- * }
- */
+            // Set parameters
+            statement.setString(1, data[0]); // userID
+            statement.setString(2, data[1]); // username
+            statement.setString(3, data[2]); // useremail
+            statement.setString(4, data[3]); // userpassword
+            statement.setString(5, data[4]); // useraddress
+            statement.setString(6, data[5]); // userphone
+
+            // Execute the query
+            int rowsInserted = statement.executeUpdate();
+
+            // Check if the user was inserted successfully
+            if (rowsInserted > 0) {
+                System.out.println("User registered successfully.");
+                return true;
+            } else {
+                System.out.println("Failed to register user.");
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // Handle the exception appropriately
+        }
+    }
+}

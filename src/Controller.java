@@ -1,8 +1,24 @@
 package src;
+import java.util.List;
 import java.util.Vector;
-import java.util.regex.*;
+//import java.util.regex.*;
 
 public class Controller {
+    public String defineNewArea(String[] data)
+    {
+        Area newArea = new Area();
+        return newArea.defineArea(data);
+    }
+    public List<String> getCountryNames()
+    {
+        Area countries = new Area();
+        return countries.getCountryNames();
+    }
+    public List<String> getCityNamesbyCountry(String data)
+    {
+        Area city = new Area();
+        return city.getCityNamesByCountry(data);
+    }
     public void sendAlert(String[] data) {
         System.out.println("Khurram Shahzad is is Controller Class");
         Admin admin = new Admin();

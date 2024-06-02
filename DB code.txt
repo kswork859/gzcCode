@@ -1,0 +1,101 @@
+DROP DATABASE greenzonedb;
+CREATE DATABASE IF NOT EXISTS greenzonedb;
+USE greenzonedb;
+
+-- User Table
+CREATE TABLE users (
+    userid INT  PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    useremail VARCHAR(255) UNIQUE NOT NULL,
+    useraddress VARCHAR(255) NOT NULL,
+    userpassword VARCHAR(255) NOT NULL,
+    userphone VARCHAR(255) NOT NULL
+);
+
+-- Country Table
+CREATE TABLE country (
+    countryid INT AUTO_INCREMENT PRIMARY KEY,
+    countryname VARCHAR(255) NOT NULL
+);
+
+-- Admin Table
+CREATE TABLE admin (
+    adminid INT  PRIMARY KEY,
+    adminname VARCHAR(255) NOT NULL,
+    adminemail VARCHAR(255) UNIQUE NOT NULL,
+    adminphone VARCHAR(15) NOT NULL
+);
+
+-- Defined Activity Table
+CREATE TABLE definedactivity (
+    activitytypeid INT  PRIMARY KEY,
+    activitytypename VARCHAR(255) NOT NULL
+);
+
+-- City Table
+CREATE TABLE city (
+    cityid INT AUTO_INCREMENT PRIMARY KEY,
+    cityname VARCHAR(255) NOT NULL,
+    countryid INT,
+    FOREIGN KEY (countryid) REFERENCES country(countryid)
+);
+
+-- Area Table
+CREATE TABLE area (
+    areaid INT AUTO_INCREMENT PRIMARY KEY,
+    areaname VARCHAR(255) NOT NULL,
+    cityid INT,
+    FOREIGN KEY (cityid) REFERENCES city(cityid)
+);
+
+-- Group Table
+CREATE TABLE grouptable (
+    groupid INT AUTO_INCREMENT PRIMARY KEY,
+    groupname VARCHAR(255) NOT NULL,
+    areaid INT,
+    adminid INT,
+    FOREIGN KEY (areaid) REFERENCES area(areaid),
+    FOREIGN KEY (adminid) REFERENCES admin(adminid)
+);
+
+-- Belongings Table
+CREATE TABLE belongings (
+    groupid INT,
+    userid INT,
+    PRIMARY KEY (groupid, userid),
+    FOREIGN KEY (groupid) REFERENCES grouptable(groupid),
+    FOREIGN KEY (userid) REFERENCES users(userid)
+);
+
+-- OSC Activity Table
+CREATE TABLE oscactivity (
+    activityno INT  PRIMARY KEY,
+    groupid INT,
+    activitytypeid INT,
+    activitystartingdate DATE,
+    activityenddate DATE,
+    score DECIMAL(5,2),
+    FOREIGN KEY (groupid) REFERENCES grouptable(groupid),
+    FOREIGN KEY (activitytypeid) REFERENCES definedactivity(activitytypeid)
+);
+
+-- Participation Table
+CREATE TABLE participation (
+    activityno INT,
+    userid INT,
+    choice VARCHAR(255),
+    PRIMARY KEY (activityno, userid),
+    FOREIGN KEY (activityno) REFERENCES oscactivity(activityno),
+    FOREIGN KEY (userid) REFERENCES users (userid)
+);
+
+-- Multimedia Table
+CREATE TABLE multimedia (
+    multimedialink VARCHAR(255) PRIMARY KEY,
+    mediacaptions VARCHAR(255),
+    mediatype VARCHAR(50),
+    userid INT,
+    activityno INT,
+    FOREIGN KEY (userid) REFERENCES users(userid),
+    FOREIGN KEY (activityno) REFERENCES oscactivity(activityno)
+);

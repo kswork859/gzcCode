@@ -1,31 +1,21 @@
 package src;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class CreateGroupsPanel extends JPanel {
+public class DefineAreaPanel extends JPanel {
 
-    public CreateGroupsPanel() {
+    public DefineAreaPanel() {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(100, 100, 100, 100)); // Add padding
 
-        JLabel defineAreaHeading = new JLabel("Create Group", SwingConstants.CENTER);
+        JLabel defineAreaHeading = new JLabel("Define Area", SwingConstants.CENTER);
         defineAreaHeading.setFont(new Font("Arial", Font.BOLD, 18)); // Set font size and style
         add(defineAreaHeading, BorderLayout.NORTH); // Add heading above the form
 
         JPanel formPanel = new JPanel(new GridLayout(3, 2, 5, 5));
-        JLabel groupNameLabel = new JLabel("Group Name:");
-        JTextField groupNameTextField = new JTextField(13);
-
-        JLabel userIDLabel = new JLabel("User ID:");
-        JTextField userIDTextField = new JTextField(13);
-
-        JLabel userPasswordLabel = new JLabel("Password:");
-        JPasswordField userPasswordField = new JPasswordField(13);
-
         Controller controllerCity = new Controller();
         List<String> countryNames = controllerCity.getCountryNames();
         JLabel countryLabel = new JLabel("Country Names:");
@@ -39,7 +29,7 @@ public class CreateGroupsPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 String selectedCountry = (String) countryComboBox.getSelectedItem();
                 List<String> cityNames = controllerCity.getCityNamesbyCountry(selectedCountry);
-
+                
                 // Update the city combo box
                 cityComboBox.removeAllItems();
                 for (String cityName : cityNames) {
@@ -47,6 +37,10 @@ public class CreateGroupsPanel extends JPanel {
                 }
             }
         });
+
+
+
+
 
         JLabel areaLabel = new JLabel("Area Name:");
         JTextArea areaTextArea = new JTextArea();
@@ -62,12 +56,6 @@ public class CreateGroupsPanel extends JPanel {
             System.out.println("City: " + city);
             System.out.println("Area: " + area);
         });
-        formPanel.add(groupNameLabel);
-        formPanel.add(groupNameTextField);
-        formPanel.add(userIDLabel);
-        formPanel.add(userIDTextField);
-        formPanel.add(userPasswordLabel);
-        formPanel.add(userPasswordField);
 
         formPanel.add(countryLabel);
         formPanel.add(countryComboBox);
@@ -81,12 +69,12 @@ public class CreateGroupsPanel extends JPanel {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Create Group");
+        JFrame frame = new JFrame("Define Area");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 400);
 
         JTabbedPane groupTabbedPane = new JTabbedPane();
-        groupTabbedPane.addTab("Create Group", new DefineAreaPanel());
+        groupTabbedPane.addTab("Define Area", new DefineAreaPanel());
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(groupTabbedPane, BorderLayout.CENTER);
