@@ -4,31 +4,34 @@ USE greenzonedb;
 
 -- User Table
 CREATE TABLE users (
-    userid INT  PRIMARY KEY,
+    userid INT PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
-    useremail VARCHAR(255) UNIQUE NOT NULL,
+    useremail VARCHAR(255) NOT NULL,
     useraddress VARCHAR(255) NOT NULL,
     userpassword VARCHAR(255) NOT NULL,
-    userphone VARCHAR(255) NOT NULL
+    userphone VARCHAR(255) NOT NULL,
+    UNIQUE (useremail(191))
 );
 
 -- Country Table
 CREATE TABLE country (
     countryid INT AUTO_INCREMENT PRIMARY KEY,
-    countryname VARCHAR(255) NOT NULL
+    countryname VARCHAR(255) NOT NULL,
+    UNIQUE (countryname(191))
 );
 
--- Admin Table
+/*-- Admin Table
 CREATE TABLE admin (
-    adminid INT  PRIMARY KEY,
+    adminid INT PRIMARY KEY,
     adminname VARCHAR(255) NOT NULL,
-    adminemail VARCHAR(255) UNIQUE NOT NULL,
-    adminphone VARCHAR(15) NOT NULL
-);
+    adminemail VARCHAR(255) NOT NULL,
+    adminphone VARCHAR(15) NOT NULL,
+    UNIQUE (adminemail(191))
+);*/
 
 -- Defined Activity Table
 CREATE TABLE definedactivity (
-    activitytypeid INT  PRIMARY KEY,
+    activitytypeid INT PRIMARY KEY,
     activitytypename VARCHAR(255) NOT NULL
 );
 
@@ -36,7 +39,8 @@ CREATE TABLE definedactivity (
 CREATE TABLE city (
     cityid INT AUTO_INCREMENT PRIMARY KEY,
     cityname VARCHAR(255) NOT NULL,
-    countryid INT,
+    countryid INT NOT NULL,
+    UNIQUE (countryid, cityname(191)),
     FOREIGN KEY (countryid) REFERENCES country(countryid)
 );
 
@@ -55,7 +59,7 @@ CREATE TABLE grouptable (
     areaid INT,
     adminid INT,
     FOREIGN KEY (areaid) REFERENCES area(areaid),
-    FOREIGN KEY (adminid) REFERENCES admin(adminid)
+    FOREIGN KEY (adminid) REFERENCES user(userid)
 );
 
 -- Belongings Table
@@ -69,7 +73,7 @@ CREATE TABLE belongings (
 
 -- OSC Activity Table
 CREATE TABLE oscactivity (
-    activityno INT  PRIMARY KEY,
+    activityno INT PRIMARY KEY,
     groupid INT,
     activitytypeid INT,
     activitystartingdate DATE,
@@ -86,12 +90,13 @@ CREATE TABLE participation (
     choice VARCHAR(255),
     PRIMARY KEY (activityno, userid),
     FOREIGN KEY (activityno) REFERENCES oscactivity(activityno),
-    FOREIGN KEY (userid) REFERENCES users (userid)
+    FOREIGN KEY (userid) REFERENCES users(userid)
 );
 
--- Multimedia Table
+-- Multimedia Table with multimediaid as PRIMARY KEY
 CREATE TABLE multimedia (
-    multimedialink VARCHAR(255) PRIMARY KEY,
+    multimediaid INT AUTO_INCREMENT PRIMARY KEY,
+    multimedialink VARCHAR(255),
     mediacaptions VARCHAR(255),
     mediatype VARCHAR(50),
     userid INT,

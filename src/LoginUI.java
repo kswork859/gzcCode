@@ -57,8 +57,9 @@ public class LoginUI extends JFrame implements ActionListener {
             Controller Controller = new Controller();
             boolean myresult = Controller.login(data);
             if (myresult == true) {
+                String userID = data[0];
                 dispose();
-                new GreenZoneDashboard();
+                new GreenZoneDashboard(userID);
             } else {
                 JOptionPane.showMessageDialog(this, "Incorrect User ID or Password! Please try Again!", "Error",
                         JOptionPane.INFORMATION_MESSAGE);

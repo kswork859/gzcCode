@@ -13,9 +13,12 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 public class GreenZoneDashboard extends JFrame {
+    public GreenZoneDashboard() {
+        System.out.println("Main Dashboard Opened!");
+    }
     String myUserID;
 
-    public GreenZoneDashboard() {
+    public GreenZoneDashboard(String userID) {
         setTitle("Green Zone Connect Dashboard");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -63,7 +66,7 @@ public class GreenZoneDashboard extends JFrame {
         // Main area
         JTabbedPane mainTabbedPane = new JTabbedPane();
         JPanel activityPanel = createActivityPanel();
-        JPanel groupPanel = createGroupPanel();
+        JPanel groupPanel = createGroupPanel(userID);
         mainTabbedPane.addTab("Activity", activityPanel);
         mainTabbedPane.addTab("Groups", groupPanel);
         add(mainTabbedPane, BorderLayout.CENTER);
@@ -83,7 +86,7 @@ public class GreenZoneDashboard extends JFrame {
         setVisible(true);
     }
 
-    private JPanel createGroupPanel() {
+    private JPanel createGroupPanel(String userID) {
         JPanel panel = new JPanel(new BorderLayout());
 
         // Group tabbed pane
@@ -104,7 +107,7 @@ public class GreenZoneDashboard extends JFrame {
         //DeleteGroupsPanel deleteGroupsPanel = new DeleteGroupsPanel();
         //groupTabbedPane.add("Delete Group", deleteGroupsPanel);
 
-        CreateGroupsPanel createGroupsPanel = new CreateGroupsPanel();
+        CreateGroupsPanel createGroupsPanel = new CreateGroupsPanel(userID);
         groupTabbedPane.add("Create Group", createGroupsPanel);
 
         DefineAreaPanel defineAreaPanel = new DefineAreaPanel();
