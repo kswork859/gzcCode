@@ -16,10 +16,7 @@ public class Group {
         // Method body
     }
 
-    public boolean createGroup(String[] data) {
-        System.out.println("Bahiya hum ne Group Bana Dia!");
-        return false;
-    }
+    
 
     public void joinGroup(int userID) {
         // Method body

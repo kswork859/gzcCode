@@ -14,6 +14,40 @@ public class User {
     private String userAddress;
 
     // Getter for userID
+    public boolean createGroup(String[] data) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+    
+        try {
+            conn = DatabaseConnection.getConnection();
+            String insertQuery = "INSERT INTO grouptable (groupname, areaid, adminid) VALUES (?, ?, ?)";
+            pstmt = conn.prepareStatement(insertQuery);
+            pstmt.setString(1, data[1]);  // groupname
+            pstmt.setInt(2, Integer.parseInt(data[4]));  // areaid
+            pstmt.setInt(3, Integer.parseInt(data[0]));  // adminid
+            int rowsAffected = pstmt.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                System.out.println("Group created successfully!");
+                return true;
+            } else {
+                System.out.println("Failed to create group.");
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+
     public String getUserID() {
         return userID;
     }

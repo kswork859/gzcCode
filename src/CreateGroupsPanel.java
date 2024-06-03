@@ -8,7 +8,8 @@ import java.awt.event.ActionListener;
 
 public class CreateGroupsPanel extends JPanel {
 
-    public CreateGroupsPanel() {
+    public CreateGroupsPanel(String userID) {
+        System.out.println(userID);
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(100, 100, 100, 100)); // Add padding
 
@@ -19,12 +20,6 @@ public class CreateGroupsPanel extends JPanel {
         JPanel formPanel = new JPanel(new GridLayout(3, 2, 5, 5));
         JLabel groupNameLabel = new JLabel("Group Name:");
         JTextField groupNameTextField = new JTextField(13);
-
-        JLabel userIDLabel = new JLabel("User ID:");
-        JTextField userIDTextField = new JTextField(13);
-
-        JLabel userPasswordLabel = new JLabel("Password:");
-        JPasswordField userPasswordField = new JPasswordField(13);
 
         Controller controllerCity = new Controller();
         List<String> countryNames = controllerCity.getCountryNames();
@@ -54,21 +49,18 @@ public class CreateGroupsPanel extends JPanel {
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             // Save action goes here
-            String country = (String) countryComboBox.getSelectedItem();
-            String city = (String) cityComboBox.getSelectedItem();
-            String area = areaTextArea.getText();
+            String[] data = new String[5];
+            data[0] = userID;
+            data[1] = groupNameTextField.getText();
+            data[2] = (String) countryComboBox.getSelectedItem();
+            data[3] = (String) cityComboBox.getSelectedItem();
+            data[4] = areaTextArea.getText();
             // Process the saved data
-            System.out.println("Country: " + country);
-            System.out.println("City: " + city);
-            System.out.println("Area: " + area);
+            Controller creategroup = new Controller();
+            creategroup.createGroup(data);
         });
         formPanel.add(groupNameLabel);
         formPanel.add(groupNameTextField);
-        formPanel.add(userIDLabel);
-        formPanel.add(userIDTextField);
-        formPanel.add(userPasswordLabel);
-        formPanel.add(userPasswordField);
-
         formPanel.add(countryLabel);
         formPanel.add(countryComboBox);
         formPanel.add(cityLabel);
