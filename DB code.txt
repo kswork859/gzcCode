@@ -59,7 +59,7 @@ CREATE TABLE grouptable (
     areaid INT,
     adminid INT,
     FOREIGN KEY (areaid) REFERENCES area(areaid),
-    FOREIGN KEY (adminid) REFERENCES user(userid)
+    FOREIGN KEY (adminid) REFERENCES users(userid)
 );
 
 -- Belongings Table

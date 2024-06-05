@@ -57,6 +57,7 @@ public class OrganizeActivityWindow extends JFrame {
         // Group ID Label and Field
         JLabel groupIdLabel = new JLabel("Group ID:");
         groupIdField = new JTextField(20);
+        groupIdField.setText("Group 1");
         gbc.gridx = 0;
         gbc.gridy = 3;
         formPanel.add(groupIdLabel, gbc);

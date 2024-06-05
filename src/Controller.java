@@ -14,10 +14,15 @@ public class Controller {
         Area countries = new Area();
         return countries.getCountryNames();
     }
-    public List<String> getCityNamesbyCountry(String data)
+    public List<String> getCityNamesByCountry(String data)
     {
         Area city = new Area();
         return city.getCityNamesByCountry(data);
+    }
+    public List<String> getAreaNamesByCity(String data)
+    {
+        Area city = new Area();
+        return city.getAreaNamesByCityName(data);
     }
     public void sendAlert(String[] data) {
         System.out.println("Khurram Shahzad is is Controller Class");
@@ -99,9 +104,9 @@ public class Controller {
     }
     public Object[][] getOrganizedActivity()
     {
-        Activity organizedActivity = new Activity();
-        Object[][] data;
-        data = organizedActivity.getOrganizedActivity();
+       // Activity organizedActivity = new Activity();
+        Object[][] data = {};
+        //data = organizedActivity.getOrganizedActivity();
         return data;
     }
 }

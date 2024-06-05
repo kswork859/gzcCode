@@ -33,7 +33,7 @@ public class CreateGroupsPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedCountry = (String) countryComboBox.getSelectedItem();
-                List<String> cityNames = controllerCity.getCityNamesbyCountry(selectedCountry);
+                List<String> cityNames = controllerCity.getCityNamesByCountry(selectedCountry);
 
                 // Update the city combo box
                 cityComboBox.removeAllItems();

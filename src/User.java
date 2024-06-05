@@ -90,7 +90,7 @@ public class User {
     public boolean registerUser(String[] data) {
         try (Connection connection = DatabaseConnection.getConnection()) {
             System.out.println("this is my name");
-            String sql = "INSERT INTO users (userid, username, useremail, useraddress, userpassword, userphone) VALUES (?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO users (userid, username, useremail, userpassword, useraddress, userphone) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(sql);
 
             // Set parameters
