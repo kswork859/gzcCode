@@ -75,10 +75,9 @@ public class Controller {
         createGroup.createGroup(data);
         return false;
     }
-    public Object[][] searchGroup(String groupName)
-    {
+    public Object[][] searchGroup(String groupArea) throws Exception  {
         Group searchedGroups = new Group();
-         Object[][] data = searchedGroups.searchGroup(groupName);
+         Object[][] data = searchedGroups.searchGroup(groupArea);
          return data;
     }
     public Object[][] displayAllGroups(String groupName)
