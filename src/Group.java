@@ -63,14 +63,76 @@ public class Group {
     public void joinGroup(int userID) {
         // Method body
     }
-    public Object[][] displayJoinedGroups()
-    {
-        Object[][] data = {
-                { "G101", "Group 1", "Area 1", "Admin 1", "Member 1, Member 2" },
-                { "G102", "Group 2", "Area 2", "Admin 2", "Member 3, Member 4" },
-                { "G103", "Group 3", "Area 3", "Admin 3", "Member 5, Member 6" }
-        };
-        return data;
+    public Object[][] displayJoinedGroups(String userId) throws SQLException {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        List<Object[]> resultList = new ArrayList<>();
+
+        try {
+            // Connect to the database
+            conn = DatabaseConnection.getConnection();
+
+            // SQL query to fetch joined groups
+            String query = "SELECT g.groupid, g.groupname, c.countryname, ci.cityname, a.areaname, u.username AS adminname " +
+                    "FROM belongings b " +
+                    "JOIN grouptable g ON b.groupid = g.groupid " +
+                    "JOIN area a ON g.areaid = a.areaid " +
+                    "JOIN city ci ON a.cityid = ci.cityid " +
+                    "JOIN country c ON ci.countryid = c.countryid " +
+                    "JOIN users u ON g.adminid = u.userid " +
+                    "WHERE b.userid = ?";
+
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, userId);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                String groupID = rs.getString("groupid");
+                String groupName = rs.getString("groupname");
+                String groupArea = rs.getString("countryname") + ", " + rs.getString("cityname") + ", " + rs.getString("areaname");
+                String adminName = rs.getString("adminname");
+
+                // Fetch group members
+                String groupMembers = fetchGroupMembers(conn, groupID);
+
+                resultList.add(new Object[]{groupID, groupName, groupArea, adminName, groupMembers});
+            }
+        } finally {
+            // Close connections and statements
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            if (conn != null) conn.close();
+        }
+
+        return resultList.toArray(new Object[0][]);
+    }
+
+    // Method to fetch group members
+    private String fetchGroupMembers(Connection conn, String groupID) throws SQLException {
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        StringBuilder members = new StringBuilder();
+
+        try {
+            String query = "SELECT u.username FROM belongings b JOIN users u ON b.userid = u.userid WHERE b.groupid = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, groupID);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                if (members.length() > 0) {
+                    members.append(", ");
+                }
+                members.append(rs.getString("username"));
+            }
+        } finally {
+            // Close result set and statement
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+        }
+
+        return members.toString();
     }
     public Object[][] searchGroup(String searchString) throws SQLException {
         // Connect to the database

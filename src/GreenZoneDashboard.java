@@ -95,7 +95,7 @@ public class GreenZoneDashboard extends JFrame {
        // GroupMediaPanel groupMediaPanel = new GroupMediaPanel();
        // groupTabbedPane.add("Group Media", groupMediaPanel);
 
-        ViewGroups ViewGroups = new ViewGroups(false);
+        JoinedGroups ViewGroups = new JoinedGroups(userID);
         groupTabbedPane.addTab("View Groups", ViewGroups);
 
         UpdateGroupsPanel updateGroupsPanel = new UpdateGroupsPanel();

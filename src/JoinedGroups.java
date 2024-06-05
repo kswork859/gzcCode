@@ -1,4 +1,5 @@
 package src;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -8,19 +9,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class ViewGroups extends JPanel {
+public class JoinedGroups extends JPanel {
 
     private JTable table;
     private DefaultTableModel model;
     private boolean isAdmin; // This flag indicates if the user is an admin
+    private String userID; // Class-level variable to store user ID
 
-    public ViewGroups(boolean isAdmin) {
-        this.isAdmin = isAdmin; // Initialize the admin flag
+    public JoinedGroups() {
+    }
+
+    public JoinedGroups(String userId) {
+        this.userID = userId; // Assign the received user ID to the class-level variable
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(50, 50, 50, 50)); // Add padding
 
         // Heading Label
-        JLabel viewGroupsHeadingLabel = new JLabel("View Groups", SwingConstants.CENTER);
+        JLabel viewGroupsHeadingLabel = new JLabel("Joined Groups", SwingConstants.CENTER);
         viewGroupsHeadingLabel.setFont(new Font("Arial", Font.BOLD, 18)); // Set font size and style
         add(viewGroupsHeadingLabel, BorderLayout.NORTH);
 
@@ -28,9 +33,9 @@ public class ViewGroups extends JPanel {
         JPanel tablePanel = new JPanel(new BorderLayout());
 
         // Table Data
-        String[] columnNames = { "Group ID", "Group Name", "Group Area", "Admin Name", "Members" };
+        String[] columnNames = {"Group ID", "Group Name", "Group Area", "Admin Name", "Members"};
         Controller mygroups = new Controller();
-        Object[][] data = mygroups.displayJoinedGroups();
+        Object[][] data = mygroups.displayJoinedGroups(userId);
 
         // Create Table Model
         model = new DefaultTableModel(data, columnNames);
@@ -49,6 +54,14 @@ public class ViewGroups extends JPanel {
 
         // Add Mouse Listener for right-click context menu
         table.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    table.setRowSelectionInterval(row, row);
+                    showPopupMenu(e, row);
+                }
+            }
+
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     int row = table.rowAtPoint(e.getPoint());
@@ -70,7 +83,7 @@ public class ViewGroups extends JPanel {
             }
         });
         popupMenu.add(viewMediaItem);
-        
+
         JMenuItem viewGroupMembersItem = new JMenuItem("View Group Members");
         popupMenu.add(viewGroupMembersItem);
 
@@ -99,40 +112,21 @@ public class ViewGroups extends JPanel {
     }
 
     private void handleDeleteGroup(int row) {
-        if (!isAdmin) {
-            JOptionPane.showMessageDialog(this, "Error: You are not the admin of this group.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        int response = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this group?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
-        if (response == JOptionPane.YES_OPTION) {
-            // Get the data from the selected row
-            String[] rowData = new String[table.getColumnCount()];
-            for (int col = 0; col < table.getColumnCount(); col++) {
-                rowData[col] = table.getValueAt(row, col).toString();
-            }
-
-            // Call the function with the row data (example: deleteGroup(rowData))
-            Controller deleteGroup = new Controller();
-            deleteGroup.deleteGroup(rowData);
-
+        // Use the class-level userID
+        String userID = this.userID;
+    
+        // Get group ID from the selected row
+        String groupID = table.getValueAt(row, 0).toString();
+    
+        Controller controller = new Controller();
+        boolean isDeleted = controller.deleteGroup(userID, groupID);
+    
+        if (isDeleted) {
             // Remove the selected row from the table
             model.removeRow(row);
+            JOptionPane.showMessageDialog(this, "Group deleted successfully.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Error: You are not the admin of this group.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    // Example function to demonstrate handling the row data
-   public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Group Management");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(600, 400);
-
-            JTabbedPane groupTabbedPane = new JTabbedPane();
-            groupTabbedPane.addTab("View Groups", new ViewGroups(true)); // Pass true if the user is an admin
-
-            frame.add(groupTabbedPane);
-            frame.setVisible(true);
-        });
     }
 }
