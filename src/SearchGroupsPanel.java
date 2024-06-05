@@ -2,8 +2,6 @@ package src;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-//import java.awt.event.ActionEvent;
-//import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -12,11 +10,8 @@ public class SearchGroupsPanel extends JPanel {
     private JTable table;
     private DefaultTableModel model;
     private JTextField searchField;
-    
-    public SearchGroupsPanel()
-    {
-      //  System.out.println("Awais BHSDK");
-    }
+    private String selectedGroupID;
+
     public SearchGroupsPanel(String userID) {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50)); // Add padding
@@ -38,11 +33,16 @@ public class SearchGroupsPanel extends JPanel {
         // Table Panel
         JPanel tablePanel = new JPanel(new BorderLayout());
 
-        String[] columnNames = {"Group Name", "Country", "City", "Area","Admin Name", "Total Members" };
-        //Controller displayAllGroups = new Controller();
+        String[] columnNames = {"Group ID", "Group Name", "Country", "City", "Area", "Admin Name", "Total Members"};
         Object[][] data = {};
 
-        model = new DefaultTableModel(data, columnNames);
+        model = new DefaultTableModel(data, columnNames) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Make all cells non-editable
+            }
+        };
+
         table = new JTable(model);
         table.setPreferredScrollableViewportSize(new Dimension(500, 200));
         table.setFillsViewportHeight(true);
@@ -58,7 +58,6 @@ public class SearchGroupsPanel extends JPanel {
 
         joinGroupMenuItem.addActionListener(e -> {
             joinGroup(userID);
-            System.out.println("Join Group was pressed");
         });
 
         popupMenu.add(joinGroupMenuItem);
@@ -72,7 +71,6 @@ public class SearchGroupsPanel extends JPanel {
             try {
                 Object[][] searchedResult = searchedGroups.searchGroup(searchField.getText());
                 updateTableModel(searchedResult); // Update the table model with the search results
-                System.out.println("Data Updated!");
             } catch (Exception ex) {
                 ex.printStackTrace();
                 // Handle the exception, e.g., show an error message to the user
@@ -82,35 +80,30 @@ public class SearchGroupsPanel extends JPanel {
                         JOptionPane.ERROR_MESSAGE);
             }
         });
-        
 
     }
+
     private void updateTableModel(Object[][] data) {
-        model.setDataVector(data, new String[] { "Group Name", "Country", "City", "Area","Admin Name", "Total Members"  });
+        model.setDataVector(data, new String[]{"Group ID", "Group Name", "Country", "City", "Area", "Admin Name", "Total Members"});
     }
 
     private void joinGroup(String userid) {
         int selectedRow = table.getSelectedRow();
-      
+    
         // Check if a row is selected
         if (selectedRow != -1) {
-          Object value = model.getValueAt(selectedRow, 0);
-      
-          // Check if a value exists at the first column (Group Name)
-          if (value != null) {
-            String groupName = (String) value; // Cast value to String
-            String[] data = new String[2];
-            data[0] = userid;
-            data[1] = groupName;
-            Controller joinGroup = new Controller();
-            joinGroup.joinGroup(data);
-            JOptionPane.showMessageDialog(this, "You have joined the group: " + data[1]);
-          }
+            selectedGroupID = model.getValueAt(selectedRow, 0).toString();
+            // Pass selectedGroupID to controller class method
+            String[] data = new String[]{userid, selectedGroupID};
+            Controller joinGroupController = new Controller();
+            boolean joined = joinGroupController.joinGroup(data);
+            if (joined) {
+                JOptionPane.showMessageDialog(this, "You have successfully joined the group: " + model.getValueAt(selectedRow, 1));
+            } else {
+                JOptionPane.showMessageDialog(this, "You have already joined this group.");
+            }
         }
-      }
-      
-
-
+    }
 
     private class TableMouseListener extends MouseAdapter {
         private JTable table;
@@ -143,7 +136,7 @@ public class SearchGroupsPanel extends JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
 
-        SearchGroupsPanel joinGroupsPanel = new SearchGroupsPanel();
+        SearchGroupsPanel joinGroupsPanel = new SearchGroupsPanel("userID");
         JTabbedPane groupTabbedPane = new JTabbedPane();
         groupTabbedPane.addTab("Join Groups", joinGroupsPanel);
 

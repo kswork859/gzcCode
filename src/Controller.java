@@ -91,10 +91,10 @@ public class Controller {
         Object[][] data = allGroups.displayAllGroups(groupName);
         return data;
     }
-    public void joinGroup(String[] data)
+    public boolean joinGroup(String[] data)
     {
         User joinGroup = new User();
-        joinGroup.joinGroup(data);
+        return joinGroup.joinGroup(data);
     }
     public boolean markParticipation(String groupID, String userID)
     {

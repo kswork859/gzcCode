@@ -20,9 +20,62 @@ public class User {
 
     // joinGroup method
 
-    public void joinGroup(String[] info) {
-        System.out.println("This is Joined Group Function");
+    public boolean joinGroup(String[] info) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+    
+        try {
+            // Connect to the database
+            conn = DatabaseConnection.getConnection();
+    
+            // Check if the user has already joined the group
+            String checkQuery = "SELECT * FROM belongings WHERE groupid = ? AND userid = ?";
+            stmt = conn.prepareStatement(checkQuery);
+            stmt.setInt(1, Integer.parseInt(info[1])); // groupid
+            stmt.setInt(2, Integer.parseInt(info[0])); // userid
+            rs = stmt.executeQuery();
+    
+            if (rs.next()) {
+                // User has already joined the group
+                System.out.println("You have already joined this group.");
+                return false;
+            } else {
+                // Insert into belongings table to join the group
+                String insertQuery = "INSERT INTO belongings (groupid, userid) VALUES (?, ?)";
+                stmt = conn.prepareStatement(insertQuery);
+                stmt.setInt(1, Integer.parseInt(info[1])); // groupid
+                stmt.setInt(2, Integer.parseInt(info[0])); // userid
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("You have successfully joined the group.");
+                    return true;
+                } else {
+                    System.out.println("Failed to join the group.");
+                    return false;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            // Close connections and statements
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
+    
 
     public boolean loginToAcc(String[] data) {
     String userID = data[0];

@@ -72,47 +72,172 @@ public class Group {
         };
         return data;
     }
-    public Object[][] searchGroup(String areaName) throws SQLException {
-        // Connect to your database
-        Connection conn = DatabaseConnection.getConnection(); // Replace with your connection logic
-      
-        // Prepare a statement to search groups and user details
-        String sql = "SELECT g.groupname, u.username AS adminName, c.countryname, ci.cityname, a.areaname, COUNT(b.userid) AS memberCount "
-            + "FROM grouptable g "
-            + "INNER JOIN area a ON g.areaid = a.areaid "
-            + "INNER JOIN city ci ON a.cityid = ci.cityid "
-            + "INNER JOIN country c ON ci.countryid = c.countryid "
-            + "INNER JOIN users u ON g.adminid = u.userid " // Use INNER JOIN here
-            + "LEFT JOIN belongings b ON g.groupid = b.groupid "
-            + "WHERE a.areaname = ? "
-            + "GROUP BY g.groupid";
+    public Object[][] searchGroup(String searchString) throws SQLException {
+        // Connect to the database
+        Connection conn = DatabaseConnection.getConnection();
 
-      
-        PreparedStatement statement = conn.prepareStatement(sql);
-        statement.setString(1, areaName); // Set the area name parameter
-      
-        // Execute the query and store results
-        ResultSet resultSet = statement.executeQuery();
+        // Initialize the list to hold the search results
         List<Object[]> resultList = new ArrayList<>();
-        while (resultSet.next()) {
-          String groupName = resultSet.getString("groupname");
-          String adminName = resultSet.getString("adminName");
-          String countryName = resultSet.getString("countryname");
-          String cityName = resultSet.getString("cityName");
-          String area = resultSet.getString("areaname");
-          int memberCount = resultSet.getInt("memberCount");
-      
-          Object[] rowData = {groupName, countryName, cityName, area, adminName, memberCount};
-          resultList.add(rowData);
-        }
-      
-        // Close resources
-        resultSet.close();
-        statement.close();
-        conn.close();
-      
+
+        // Search by Group Name
+        searchGroupByGroupName(searchString, conn, resultList);
+
+        // Search by Admin Name
+        searchGroupByAdminName(searchString, conn, resultList);
+
+        // Search by Country Name
+        searchGroupByCountryName(searchString, conn, resultList);
+
+        // Search by City Name
+        searchGroupByCityName(searchString, conn, resultList);
+
+        // Search by Area Name
+        searchGroupByAreaName(searchString, conn, resultList);
+
+        // Convert the resultList to a 2D array and return
         return resultList.toArray(new Object[resultList.size()][]);
-      }
+    }
+
+    private void searchGroupByGroupName(String searchString, Connection conn, List<Object[]> resultList) throws SQLException {
+        String query = "SELECT g.groupid, g.groupname, co.countryname, c.cityname, a.areaname, u.username, COUNT(b.userid) AS totalMembers " +
+                "FROM grouptable g " +
+                "JOIN area a ON g.areaid = a.areaid " +
+                "JOIN city c ON a.cityid = c.cityid " +
+                "JOIN country co ON c.countryid = co.countryid " +
+                "JOIN users u ON g.adminid = u.userid " +
+                "LEFT JOIN belongings b ON g.groupid = b.groupid " +
+                "WHERE g.groupname LIKE ? " +
+                "GROUP BY g.groupid";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, "%" + searchString + "%");
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Object[] group = {
+                        rs.getInt("groupid"),
+                        rs.getString("groupname"),
+                        rs.getString("countryname"),
+                        rs.getString("cityname"),
+                        rs.getString("areaname"),
+                        rs.getString("username"),
+                        rs.getInt("totalMembers")
+                };
+                resultList.add(group);
+            }
+        }
+    }
+
+    private void searchGroupByAdminName(String searchString, Connection conn, List<Object[]> resultList) throws SQLException {
+        String query = "SELECT g.groupid, g.groupname, co.countryname, c.cityname, a.areaname, u.username, COUNT(b.userid) AS totalMembers " +
+                "FROM grouptable g " +
+                "JOIN area a ON g.areaid = a.areaid " +
+                "JOIN city c ON a.cityid = c.cityid " +
+                "JOIN country co ON c.countryid = co.countryid " +
+                "JOIN users u ON g.adminid = u.userid " +
+                "LEFT JOIN belongings b ON g.groupid = b.groupid " +
+                "WHERE u.username LIKE ? " +
+                "GROUP BY g.groupid";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, "%" + searchString + "%");
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Object[] group = {
+                        rs.getInt("groupid"),
+                        rs.getString("groupname"),
+                        rs.getString("countryname"),
+                        rs.getString("cityname"),
+                        rs.getString("areaname"),
+                        rs.getString("username"),
+                        rs.getInt("totalMembers")
+                };
+                resultList.add(group);
+            }
+        }
+    }
+
+    private void searchGroupByCountryName(String searchString, Connection conn, List<Object[]> resultList) throws SQLException {
+        String query = "SELECT g.groupid, g.groupname, co.countryname, c.cityname, a.areaname, u.username, COUNT(b.userid) AS totalMembers " +
+                "FROM grouptable g " +
+                "JOIN area a ON g.areaid = a.areaid " +
+                "JOIN city c ON a.cityid = c.cityid " +
+                "JOIN country co ON c.countryid = co.countryid " +
+                "JOIN users u ON g.adminid = u.userid " +
+                "LEFT JOIN belongings b ON g.groupid = b.groupid " +
+                "WHERE co.countryname LIKE ? " +
+                "GROUP BY g.groupid";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, "%" + searchString + "%");
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Object[] group = {
+                        rs.getInt("groupid"),
+                        rs.getString("groupname"),
+                        rs.getString("countryname"),
+                        rs.getString("cityname"),
+                        rs.getString("areaname"),
+                        rs.getString("username"),
+                        rs.getInt("totalMembers")
+                };
+                resultList.add(group);
+            }
+        }
+    }
+
+    private void searchGroupByCityName(String searchString, Connection conn, List<Object[]> resultList) throws SQLException {
+        String query = "SELECT g.groupid, g.groupname, co.countryname, c.cityname, a.areaname, u.username, COUNT(b.userid) AS totalMembers " +
+                "FROM grouptable g " +
+                "JOIN area a ON g.areaid = a.areaid " +
+                "JOIN city c ON a.cityid = c.cityid " +
+                "JOIN country co ON c.countryid = co.countryid " +
+                "JOIN users u ON g.adminid = u.userid " +
+                "LEFT JOIN belongings b ON g.groupid = b.groupid " +
+                "WHERE c.cityname LIKE ? " +
+                "GROUP BY g.groupid";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, "%" + searchString + "%");
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Object[] group = {
+                        rs.getInt("groupid"),
+                        rs.getString("groupname"),
+                        rs.getString("countryname"),
+                        rs.getString("cityname"),
+                        rs.getString("areaname"),
+                        rs.getString("username"),
+                        rs.getInt("totalMembers")
+                };
+                resultList.add(group);
+            }
+        }
+    }
+
+    private void searchGroupByAreaName(String searchString, Connection conn, List<Object[]> resultList) throws SQLException {
+        String query = "SELECT g.groupid, g.groupname, co.countryname, c.cityname, a.areaname, u.username, COUNT(b.userid) AS totalMembers " +
+                "FROM grouptable g " +
+                "JOIN area a ON g.areaid = a.areaid " +
+                "JOIN city c ON a.cityid = c.cityid " +
+                "JOIN country co ON c.countryid = co.countryid " +
+                "JOIN users u ON g.adminid = u.userid " +
+                "LEFT JOIN belongings b ON g.groupid = b.groupid " +
+                "WHERE a.areaname LIKE ? " +
+                "GROUP BY g.groupid";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, "%" + searchString + "%");
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Object[] group = {
+                        rs.getInt("groupid"),
+                        rs.getString("groupname"),
+                        rs.getString("countryname"),
+                        rs.getString("cityname"),
+                        rs.getString("areaname"),
+                        rs.getString("username"),
+                        rs.getInt("totalMembers")
+                };
+                resultList.add(group);
+            }
+        }
+    }
+        
       
 
     public Object[][] displayAllGroups(String groupName)
