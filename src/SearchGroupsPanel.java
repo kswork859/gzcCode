@@ -13,8 +13,11 @@ public class SearchGroupsPanel extends JPanel {
     private DefaultTableModel model;
     private JTextField searchField;
     
-
-    public SearchGroupsPanel() {
+    public SearchGroupsPanel()
+    {
+      //  System.out.println("Awais BHSDK");
+    }
+    public SearchGroupsPanel(String userID) {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50)); // Add padding
 
@@ -35,9 +38,9 @@ public class SearchGroupsPanel extends JPanel {
         // Table Panel
         JPanel tablePanel = new JPanel(new BorderLayout());
 
-        String[] columnNames = { "Group ID", "Group Name", "Group Area", "Admin Name", "Members" };
-        Controller displayAllGroups = new Controller();
-        Object[][] data = displayAllGroups.displayAllGroups(searchField.getText());
+        String[] columnNames = {"Group Name", "Country", "City", "Area","Admin Name", "Total Members" };
+        //Controller displayAllGroups = new Controller();
+        Object[][] data = {};
 
         model = new DefaultTableModel(data, columnNames);
         table = new JTable(model);
@@ -54,7 +57,7 @@ public class SearchGroupsPanel extends JPanel {
         JMenuItem joinGroupMenuItem = new JMenuItem("Join Group");
 
         joinGroupMenuItem.addActionListener(e -> {
-            joinGroup();
+            joinGroup(userID);
             System.out.println("Join Group was pressed");
         });
 
@@ -66,32 +69,46 @@ public class SearchGroupsPanel extends JPanel {
         // Search Button Action
         searchButton.addActionListener(e -> {
             Controller searchedGroups = new Controller();
-            Object[][] searchedResult = searchedGroups.searchGroup(searchField.getText());
-            updateTableModel(searchedResult); // Update the table model with the search results
-            System.out.println("Data Updtaed!");
+            try {
+                Object[][] searchedResult = searchedGroups.searchGroup(searchField.getText());
+                updateTableModel(searchedResult); // Update the table model with the search results
+                System.out.println("Data Updated!");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // Handle the exception, e.g., show an error message to the user
+                JOptionPane.showMessageDialog(SearchGroupsPanel.this,
+                        "An error occurred while searching: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         });
-
+        
 
     }
     private void updateTableModel(Object[][] data) {
-        model.setDataVector(data, new String[] { "Group ID", "Group Name", "Group Area", "Admin Name", "Members" });
+        model.setDataVector(data, new String[] { "Group Name", "Country", "City", "Area","Admin Name", "Total Members"  });
     }
 
-    private void joinGroup() {
-    int selectedRow = table.getSelectedRow();
-    if (selectedRow != -1) {
-        Object value = model.getValueAt(selectedRow, 0);
-        if (value != null) {
+    private void joinGroup(String userid) {
+        int selectedRow = table.getSelectedRow();
+      
+        // Check if a row is selected
+        if (selectedRow != -1) {
+          Object value = model.getValueAt(selectedRow, 0);
+      
+          // Check if a value exists at the first column (Group Name)
+          if (value != null) {
+            String groupName = (String) value; // Cast value to String
             String[] data = new String[2];
-            String password = JOptionPane.showInputDialog(this, "Enter your User ID:");
-            data[0] = value.toString();
-            data[1] = password;
+            data[0] = userid;
+            data[1] = groupName;
             Controller joinGroup = new Controller();
             joinGroup.joinGroup(data);
-            JOptionPane.showMessageDialog(this, "You have joined the group: "+ data[0]);
+            JOptionPane.showMessageDialog(this, "You have joined the group: " + data[1]);
+          }
         }
-    }
-}
+      }
+      
 
 
 

@@ -101,7 +101,7 @@ public class GreenZoneDashboard extends JFrame {
         UpdateGroupsPanel updateGroupsPanel = new UpdateGroupsPanel();
         groupTabbedPane.add("Update Group", updateGroupsPanel);
 
-        SearchGroupsPanel SearchGroupsPanel = new SearchGroupsPanel();
+        SearchGroupsPanel SearchGroupsPanel = new SearchGroupsPanel(userID);
         groupTabbedPane.addTab("Search and Join a Group", SearchGroupsPanel);
 
         //DeleteGroupsPanel deleteGroupsPanel = new DeleteGroupsPanel();
