@@ -76,7 +76,7 @@ public class Controller {
     }
     public boolean createGroup(String[] data)
     {
-        User createGroup = new User();
+        Group createGroup = new Group();
         createGroup.createGroup(data);
         return false;
     }

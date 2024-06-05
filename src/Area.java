@@ -203,5 +203,23 @@ public class Area {
         }
         return areaNames;
     }
+
+    public int getAreaIdByCityName(String cityName, String areaName) {
+        int areaId = -1;
+        String sql = "SELECT areaid FROM area WHERE LOWER(areaname) = LOWER(?) AND cityid = (SELECT cityid FROM city WHERE LOWER(cityname) = LOWER(?))";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, areaName);
+            pstmt.setString(2, cityName);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    areaId = rs.getInt("areaid");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return areaId;
+    }
     
 }
