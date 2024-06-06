@@ -56,57 +56,71 @@ public class JoinedGroups extends JPanel {
         table.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 if (e.isPopupTrigger()) {
-                    int row = table.rowAtPoint(e.getPoint());
-                    table.setRowSelectionInterval(row, row);
-                    showPopupMenu(e, row);
+                    showPopupMenu(e);
                 }
             }
 
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
-                    int row = table.rowAtPoint(e.getPoint());
-                    table.setRowSelectionInterval(row, row);
-                    showPopupMenu(e, row);
+                    showPopupMenu(e);
                 }
             }
         });
     }
 
-    private void showPopupMenu(MouseEvent e, int row) {
+    private void showPopupMenu(MouseEvent e) {
         JPopupMenu popupMenu = new JPopupMenu();
 
-        JMenuItem viewMediaItem = new JMenuItem("View Media");
-        viewMediaItem.addActionListener(new ActionListener() {
+        // Add the Refresh option to the context menu
+        JMenuItem refreshItem = new JMenuItem("Refresh");
+        refreshItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new MediaGalleryWindow();
+                refreshTableData();
             }
         });
-        popupMenu.add(viewMediaItem);
+        popupMenu.add(refreshItem);
 
-        JMenuItem viewGroupMembersItem = new JMenuItem("View Group Members");
-        popupMenu.add(viewGroupMembersItem);
+        // Check if there is data in the table
+        if (table.getRowCount() > 0) {
+            int row = table.rowAtPoint(e.getPoint());
+            if (row >= 0 && row < table.getRowCount()) {
+                table.setRowSelectionInterval(row, row);
 
-        JMenuItem postAlertMessageItem = new JMenuItem("Send Alert");
-        postAlertMessageItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new SendAlertMessage();
+                JMenuItem viewMediaItem = new JMenuItem("View Media");
+                viewMediaItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        new MediaGalleryWindow();
+                    }
+                });
+                popupMenu.add(viewMediaItem);
+
+                JMenuItem viewGroupMembersItem = new JMenuItem("View Group Members");
+                popupMenu.add(viewGroupMembersItem);
+
+                JMenuItem postAlertMessageItem = new JMenuItem("Send Alert");
+                postAlertMessageItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        new SendAlertMessage();
+                    }
+                });
+                popupMenu.add(postAlertMessageItem);
+
+                JMenuItem viewAlertMessageItem = new JMenuItem("View Alert Message");
+                popupMenu.add(viewAlertMessageItem);
+
+                JMenuItem deleteGroupItem = new JMenuItem("Delete Group");
+                deleteGroupItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        handleDeleteGroup(row);
+                    }
+                });
+                popupMenu.add(deleteGroupItem);
             }
-        });
-        popupMenu.add(postAlertMessageItem);
-
-        JMenuItem viewAlertMessageItem = new JMenuItem("View Alert Message");
-        popupMenu.add(viewAlertMessageItem);
-
-        JMenuItem deleteGroupItem = new JMenuItem("Delete Group");
-        deleteGroupItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleDeleteGroup(row);
-            }
-        });
-        popupMenu.add(deleteGroupItem);
+        }
 
         popupMenu.show(e.getComponent(), e.getX(), e.getY());
     }
@@ -114,19 +128,33 @@ public class JoinedGroups extends JPanel {
     private void handleDeleteGroup(int row) {
         // Use the class-level userID
         String userID = this.userID;
-    
+
         // Get group ID from the selected row
         String groupID = table.getValueAt(row, 0).toString();
-    
+
         Controller controller = new Controller();
         boolean isDeleted = controller.deleteGroup(userID, groupID);
-    
+
         if (isDeleted) {
             // Remove the selected row from the table
             model.removeRow(row);
             JOptionPane.showMessageDialog(this, "Group deleted successfully.");
         } else {
             JOptionPane.showMessageDialog(this, "Error: You are not the admin of this group.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Method to refresh table data
+    private void refreshTableData() {
+        Controller mygroups = new Controller();
+        Object[][] newData = mygroups.displayJoinedGroups(userID);
+
+        // Clear the existing data
+        model.setRowCount(0);
+
+        // Add the new data to the model
+        for (Object[] row : newData) {
+            model.addRow(row);
         }
     }
 }

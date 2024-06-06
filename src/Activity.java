@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 
 public class Activity {
     public Vector<Vector<String>> displayActivity() {
@@ -44,12 +47,13 @@ public class Activity {
             connection = DatabaseConnection.getConnection();
     
             // SQL query to retrieve organized activities in groups joined by the user
-            String sql = "SELECT oa.groupid, gt.groupname, oa.activitytypeid, da.activitytypename " +
+            // Exclude activities with both date and time allotted
+            String sql = "SELECT oa.groupid, gt.groupname, oa.activitytypeid, da.activitytypename, oa.activitydescription " +
                          "FROM oscactivity oa " +
                          "JOIN grouptable gt ON oa.groupid = gt.groupid " +
                          "JOIN belongings b ON oa.groupid = b.groupid " +
                          "JOIN definedactivity da ON oa.activitytypeid = da.activitytypeid " +
-                         "WHERE b.userid = ?";
+                         "WHERE b.userid = ? AND (oa.activitystartingdate IS NULL OR oa.activitystarttime IS NULL)";
     
             // Prepare the statement
             preparedStatement = connection.prepareStatement(sql);
@@ -61,11 +65,12 @@ public class Activity {
             // Populate the organized activities list
             List<Object[]> organizedActivityList = new ArrayList<>();
             while (resultSet.next()) {
-                Object[] activity = new Object[4];
+                Object[] activity = new Object[5]; // Increase array size to accommodate activitydescription
                 activity[0] = resultSet.getInt("groupid");
                 activity[1] = resultSet.getString("groupname");
                 activity[2] = resultSet.getInt("activitytypeid");
                 activity[3] = resultSet.getString("activitytypename");
+                activity[4] = resultSet.getString("activitydescription"); // Add activitydescription to the array
                 organizedActivityList.add(activity);
             }
     
@@ -86,6 +91,8 @@ public class Activity {
         }
         return organizedActivities;
     }
+    
+    
     
 
 
@@ -236,23 +243,36 @@ public class Activity {
     public boolean organizeActivity(String[] data) {
         Connection connection = DatabaseConnection.getConnection();
         PreparedStatement preparedStatement = null;
-
+    
         if (connection != null) {
             try {
+                // Check if the same type of activity is already ongoing in the group
+                String checkQuery = "SELECT activityno FROM oscactivity WHERE groupid = ? AND activitytypeid = ? AND activityenddate IS NULL";
+                preparedStatement = connection.prepareStatement(checkQuery);
+                preparedStatement.setInt(1, Integer.parseInt(data[0])); // Assuming groupid is the first element
+                preparedStatement.setInt(2, Integer.parseInt(data[1])); // Assuming activitytypeid is the second element
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    // Activity of the same type is already ongoing in the group
+                    System.out.println("Activity of the same type is already ongoing in the group.");
+                    return false;
+                }
+                
                 // Prepare the SQL statement for insertion
-                String query = "INSERT INTO oscactivity (groupid, activitytypeid, activitystartingdate, activityenddate, score) VALUES (?, ?, ?, ?, ?)";
-                preparedStatement = connection.prepareStatement(query);
-
+                String insertQuery = "INSERT INTO oscactivity (groupid, activitytypeid, activitystartingdate, activityenddate, score, activitydescription) VALUES (?, ?, ?, ?, ?, ?)";
+                preparedStatement = connection.prepareStatement(insertQuery);
+    
                 // Set values for the parameters
                 preparedStatement.setInt(1, Integer.parseInt(data[0])); // Assuming groupid is the first element
                 preparedStatement.setInt(2, Integer.parseInt(data[1])); // Assuming activitytypeid is the second element
                 preparedStatement.setDate(3, null); // Assuming activity starting date is today
                 preparedStatement.setDate(4, null); // Assuming activity end date is null initially
                 preparedStatement.setNull(5, Types.DECIMAL); // Assuming score is null initially
-
+                preparedStatement.setString(6, data[2]); // Assuming activity description is the third element
+    
                 // Execute the insertion query
                 int rowsAffected = preparedStatement.executeUpdate();
-
+    
                 if (rowsAffected > 0) {
                     System.out.println("Activity organized successfully!");
                     return true;
@@ -273,6 +293,8 @@ public class Activity {
         }
         return false;
     }
+    
+    
     public void defineActivity(String name) {
         Connection connection = DatabaseConnection.getConnection();
         PreparedStatement preparedStatement = null;
@@ -327,6 +349,42 @@ public class Activity {
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
+        }
+    }
+    public static boolean scheduleActivity(int groupId, int activityNo, LocalDate startingDate, LocalDate endingDate, LocalTime startTime, LocalTime endTime) {
+        // Validate the data
+        if (startingDate.isAfter(endingDate)) {
+            System.err.println("Error: Starting date cannot be after ending date.");
+            return false;
+        }
+    
+        if (startingDate.equals(endingDate) && startTime.compareTo(endTime) >= 0) {
+            System.err.println("Error: Starting time must be before ending time.");
+            return false;
+        }
+    
+        // Update the activity data in the database
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            String query = "UPDATE oscactivity SET activitystartingdate=?, activityenddate=?, activitystarttime=?, activityendtime=? WHERE groupid=? AND activityno=?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setDate(1, java.sql.Date.valueOf(startingDate));
+            statement.setDate(2, java.sql.Date.valueOf(endingDate));
+            statement.setTime(3, java.sql.Time.valueOf(startTime));
+            statement.setTime(4, java.sql.Time.valueOf(endTime));
+            statement.setInt(5, groupId);
+            statement.setInt(6, activityNo);
+    
+            int rowsUpdated = statement.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("Activity updated successfully!");
+                return true;
+            } else {
+                System.err.println("Error: Failed to update activity. No matching record found.");
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+            return false;
         }
     }
 }

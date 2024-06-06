@@ -71,19 +71,20 @@ CREATE TABLE belongings (
     FOREIGN KEY (userid) REFERENCES users(userid)
 );
 
--- OSC Activity Table
 CREATE TABLE oscactivity (
     activityno INT AUTO_INCREMENT PRIMARY KEY,
     groupid INT,
     activitytypeid INT,
     activitystartingdate DATE,
     activityenddate DATE,
+    activitystarttime TIME,
+    activityendtime TIME,
     score DECIMAL(5,2),
+    activitydescription VARCHAR(255),
     FOREIGN KEY (groupid) REFERENCES grouptable(groupid),
     FOREIGN KEY (activitytypeid) REFERENCES definedactivity(activitytypeid)
 );
-ALTER TABLE oscactivity
-ADD COLUMN activitydescription VARCHAR(255);
+
 
 
 -- Participation Table

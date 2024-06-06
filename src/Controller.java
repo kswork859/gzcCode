@@ -1,6 +1,8 @@
 package src;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Vector;
 //import java.util.regex.*;
@@ -130,4 +132,41 @@ public class Controller {
         Activity defineActivity = new Activity();
         defineActivity.defineActivity(name);
     }
+    public String scheduleActivity(String[] data) {
+        try {
+            // Extract data from the array
+            int groupId = Integer.parseInt(data[0]);
+            int activityNo = Integer.parseInt(data[1]);
+            LocalDate startingDate = LocalDate.parse(data[2]);
+            LocalDate endingDate = LocalDate.parse(data[3]);
+            LocalTime startTime = LocalTime.parse(data[4]);
+            LocalTime endTime = LocalTime.parse(data[5]);
+    
+            // Validate the data
+            if (startingDate.isAfter(endingDate)) {
+                return "Error: Starting date cannot be after ending date.";
+            }
+    
+            if (startingDate.equals(endingDate) && startTime.compareTo(endTime) >= 0) {
+                return "Error: Starting time must be before ending time.";
+            }
+    
+            // Call the Activity class method to schedule the activity
+            boolean success = Activity.scheduleActivity(groupId, activityNo, startingDate, endingDate, startTime, endTime);
+    
+            // Return success or error message based on the result
+            if (success) {
+                return "Success: Activity updated successfully!";
+            } else {
+                return "Error: Failed to update activity.";
+            }
+        } catch (NumberFormatException e) {
+            return "Error: Invalid number format.";
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return "Error: Insufficient data provided.";
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+    
 }
