@@ -31,7 +31,7 @@ CREATE TABLE admin (
 
 -- Defined Activity Table
 CREATE TABLE definedactivity (
-    activitytypeid INT PRIMARY KEY,
+    activitytypeid INT AUTO_INCREMENT PRIMARY KEY,
     activitytypename VARCHAR(255) NOT NULL
 );
 
@@ -73,7 +73,7 @@ CREATE TABLE belongings (
 
 -- OSC Activity Table
 CREATE TABLE oscactivity (
-    activityno INT PRIMARY KEY,
+    activityno INT AUTO_INCREMENT PRIMARY KEY,
     groupid INT,
     activitytypeid INT,
     activitystartingdate DATE,
@@ -82,6 +82,9 @@ CREATE TABLE oscactivity (
     FOREIGN KEY (groupid) REFERENCES grouptable(groupid),
     FOREIGN KEY (activitytypeid) REFERENCES definedactivity(activitytypeid)
 );
+ALTER TABLE oscactivity
+ADD COLUMN activitydescription VARCHAR(255);
+
 
 -- Participation Table
 CREATE TABLE participation (

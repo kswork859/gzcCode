@@ -6,6 +6,11 @@ import java.util.Vector;
 //import java.util.regex.*;
 
 public class Controller {
+    public Object[][] getDefinedActivity()
+    {
+        Activity groupactivity = new Activity();
+        return groupactivity.getDefinedActivity();
+    }
 
     public boolean deleteGroup(String userID, String groupID) {
         Admin group = new Admin();
@@ -110,11 +115,19 @@ public class Controller {
         markParticipation.markParticipation(groupID, userID);
         return true;
     }
-
-    public Object[][] getOrganizedActivity() {
-        // Activity organizedActivity = new Activity();
-        Object[][] data = {};
-        // data = organizedActivity.getOrganizedActivity();
-        return data;
+    public boolean organizeActivity(String[] data)
+    {
+        Activity myActivity = new Activity();
+        return myActivity.organizeActivity(data);
+    }
+    public Object[][] getOrganizedActivity(String userID) {
+        Activity organizedActivity = new Activity();
+        return organizedActivity.getOrganizedActivities(userID);
+        
+    }
+    public void saveActivity(String name)
+    {
+        Activity defineActivity = new Activity();
+        defineActivity.defineActivity(name);
     }
 }

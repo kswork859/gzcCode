@@ -1,9 +1,11 @@
 package src;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -11,6 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class GreenZoneDashboard extends JFrame {
     public GreenZoneDashboard() {
@@ -23,7 +27,7 @@ public class GreenZoneDashboard extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-  
+
         // Header Panel
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(87, 0, 112)); // Purple 900 color
@@ -65,10 +69,23 @@ public class GreenZoneDashboard extends JFrame {
 
         // Main area
         JTabbedPane mainTabbedPane = new JTabbedPane();
-        JPanel activityPanel = createActivityPanel();
+        JPanel activityPanel = createActivityPanel(userID);
         JPanel groupPanel = createGroupPanel(userID);
         mainTabbedPane.addTab("Activity", activityPanel);
         mainTabbedPane.addTab("Groups", groupPanel);
+
+        // Add change listener to refresh tab content on selection
+        mainTabbedPane.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                int selectedIndex = mainTabbedPane.getSelectedIndex();
+                if (selectedIndex == 0) {
+                    mainTabbedPane.setComponentAt(0, createActivityPanel(userID));
+                } else if (selectedIndex == 1) {
+                    mainTabbedPane.setComponentAt(1, createGroupPanel(userID));
+                }
+            }
+        });
+
         add(mainTabbedPane, BorderLayout.CENTER);
 
         // Footer Panel
@@ -92,9 +109,6 @@ public class GreenZoneDashboard extends JFrame {
         // Group tabbed pane
         JTabbedPane groupTabbedPane = new JTabbedPane();
 
-       // GroupMediaPanel groupMediaPanel = new GroupMediaPanel();
-       // groupTabbedPane.add("Group Media", groupMediaPanel);
-
         JoinedGroups ViewGroups = new JoinedGroups(userID);
         groupTabbedPane.addTab("View Groups", ViewGroups);
 
@@ -103,9 +117,6 @@ public class GreenZoneDashboard extends JFrame {
 
         SearchGroupsPanel SearchGroupsPanel = new SearchGroupsPanel(userID);
         groupTabbedPane.addTab("Search and Join a Group", SearchGroupsPanel);
-
-        //DeleteGroupsPanel deleteGroupsPanel = new DeleteGroupsPanel();
-        //groupTabbedPane.add("Delete Group", deleteGroupsPanel);
 
         CreateGroupsPanel createGroupsPanel = new CreateGroupsPanel(userID);
         groupTabbedPane.add("Create Group", createGroupsPanel);
@@ -121,17 +132,19 @@ public class GreenZoneDashboard extends JFrame {
         return panel;
     }
 
-    private JPanel createActivityPanel() {
+    private JPanel createActivityPanel(String userID) {
         JPanel panel = new JPanel(new BorderLayout());
         JTabbedPane activityTabbedPane = new JTabbedPane();
 
         CompletedPanel completedPanel = new CompletedPanel();
         ScheduledPanel scheduledPanel = new ScheduledPanel();
-        OrganizedPanel organizedPanel = new OrganizedPanel();
+        OrganizedPanel organizedPanel = new OrganizedPanel(userID);
+        DefineActivityPanel defineActivityPanel = new DefineActivityPanel();
 
         activityTabbedPane.addTab("Completed", completedPanel);
         activityTabbedPane.addTab("Scheduled", scheduledPanel);
         activityTabbedPane.addTab("Organized", organizedPanel);
+        activityTabbedPane.addTab("Define Activity", defineActivityPanel);
 
         panel.add(activityTabbedPane, BorderLayout.CENTER);
 

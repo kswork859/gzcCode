@@ -1,4 +1,5 @@
 package src;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -6,12 +7,11 @@ import java.awt.event.ActionListener;
 
 public class OrganizeActivityWindow extends JFrame {
 
-    private JTextField activityNameField;
-    private JTextField areaAddressField;
+    private JComboBox<String> activityNameComboBox;
     private JTextArea activityDescriptionArea;
-    private JTextField groupIdField;
+    private JComboBox<String> groupComboBox;
 
-    public OrganizeActivityWindow() {
+    public OrganizeActivityWindow(Object[][] groups, Object[][] activities) {
         setTitle("Organize Activity");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(400, 300);
@@ -20,31 +20,45 @@ public class OrganizeActivityWindow extends JFrame {
 
         JPanel contentPane = new JPanel(new BorderLayout());
 
+        // Convert Object[][] to String[] for groups
+        String[] groupNames = new String[groups.length];
+        for (int i = 0; i < groups.length; i++) {
+            groupNames[i] = groups[i][1].toString(); // Assuming group name is at index 1
+        }
+
+        // Convert Object[][] to String[] for activities
+        String[] activityNames = new String[activities.length];
+        for (int i = 0; i < activities.length; i++) {
+            activityNames[i] = activities[i][1].toString(); // Assuming activity name is at index 1
+        }
+
         // Form Panel
         JPanel formPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Activity Name Label and Field
-        JLabel activityNameLabel = new JLabel("Activity Name:");
-        activityNameField = new JTextField(20);
+        // Group Label and ComboBox
+        JLabel groupLabel = new JLabel("Group:");
+        groupComboBox = new JComboBox<>(groupNames);
+        groupComboBox.setEditable(false);
         gbc.gridx = 0;
         gbc.gridy = 0;
-        formPanel.add(activityNameLabel, gbc);
+        formPanel.add(groupLabel, gbc);
         gbc.gridx = 1;
-        formPanel.add(activityNameField, gbc);
+        formPanel.add(groupComboBox, gbc);
 
-        // Area Address Label and Field
-        JLabel areaAddressLabel = new JLabel("Area Address:");
-        areaAddressField = new JTextField(20);
+        // Activity Name Label and ComboBox
+        JLabel activityNameLabel = new JLabel("Activity Name:");
+        activityNameComboBox = new JComboBox<>(activityNames);
+        activityNameComboBox.setEditable(true);
         gbc.gridx = 0;
         gbc.gridy = 1;
-        formPanel.add(areaAddressLabel, gbc);
+        formPanel.add(activityNameLabel, gbc);
         gbc.gridx = 1;
-        formPanel.add(areaAddressField, gbc);
+        formPanel.add(activityNameComboBox, gbc);
 
-        // Activity Description Label and Field
+        // Activity Description Label and TextArea
         JLabel activityDescriptionLabel = new JLabel("Activity Description:");
         activityDescriptionArea = new JTextArea(5, 20);
         JScrollPane descriptionScrollPane = new JScrollPane(activityDescriptionArea);
@@ -54,42 +68,50 @@ public class OrganizeActivityWindow extends JFrame {
         gbc.gridx = 1;
         formPanel.add(descriptionScrollPane, gbc);
 
-        // Group ID Label and Field
-        JLabel groupIdLabel = new JLabel("Group ID:");
-        groupIdField = new JTextField(20);
-        groupIdField.setText("Group 1");
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        formPanel.add(groupIdLabel, gbc);
-        gbc.gridx = 1;
-        formPanel.add(groupIdField, gbc);
+        // Save and Cancel Buttons
+        JPanel buttonPanel = new JPanel();
+        JButton saveButton = new JButton("Save");
+        JButton cancelButton = new JButton("Cancel");
 
-        // Submit Button
-        JButton submitButton = new JButton("Submit");
-        submitButton.addActionListener(new ActionListener() {
+        saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Get input values
-                String activityName = activityNameField.getText();
-                String areaAddress = areaAddressField.getText();
+                String selectedGroup = groupComboBox.getSelectedItem().toString();
+                String selectedActivity = activityNameComboBox.getSelectedItem().toString();
                 String activityDescription = activityDescriptionArea.getText();
-                String groupId = groupIdField.getText();
+
+                // Get group ID and activity ID
+                int groupId = getGroupId(groups, selectedGroup);
+                int activityId = getActivityId(activities, selectedActivity);
+
+                System.out.println("Group ID: " + groupId);
+                System.out.println("Activity ID: " + activityId);
+                System.out.println("Activity Description: " + activityDescription);
 
                 // Process the input (e.g., submit to system)
-                // For now, just print the input values
-                System.out.println("Activity Name: " + activityName);
-                System.out.println("Area Address: " + areaAddress);
-                System.out.println("Activity Description: " + activityDescription);
-                System.out.println("Group ID: " + groupId);
+                Controller controller = new Controller();
+                String[] data = { String.valueOf(groupId), String.valueOf(activityId), activityDescription };
+                controller.organizeActivity(data);
 
                 // Clear input fields after submission
                 clearInputFields();
             }
         });
 
-        // Add Form Panel and Submit Button to the content pane
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+
+        buttonPanel.add(saveButton);
+        buttonPanel.add(cancelButton);
+
+        // Add Form Panel and Button Panel to the content pane
         contentPane.add(formPanel, BorderLayout.CENTER);
-        contentPane.add(submitButton, BorderLayout.SOUTH);
+        contentPane.add(buttonPanel, BorderLayout.SOUTH);
 
         setContentPane(contentPane);
         setVisible(true);
@@ -97,17 +119,26 @@ public class OrganizeActivityWindow extends JFrame {
 
     // Method to clear input fields after submission
     private void clearInputFields() {
-        activityNameField.setText("");
-        areaAddressField.setText("");
+        activityNameComboBox.setSelectedIndex(-1);
         activityDescriptionArea.setText("");
-        groupIdField.setText("");
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new OrganizeActivityWindow();
+    private int getGroupId(Object[][] groups, String selectedGroup) {
+        for (Object[] group : groups) {
+            if (group[1].toString().equals(selectedGroup)) {
+                return Integer.parseInt(group[0].toString());
             }
-        });
+        }
+        return -1; // If the group is not found
     }
+
+    private int getActivityId(Object[][] activities, String selectedActivity) {
+        for (Object[] activity : activities) {
+            if (activity[1].toString().equals(selectedActivity)) {
+                return Integer.parseInt(activity[0].toString());
+            }
+        }
+        return -1; // If the activity is not found
+    }
+
 }
