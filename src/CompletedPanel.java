@@ -1,4 +1,5 @@
 package src;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -9,25 +10,37 @@ import java.util.Vector;
 
 public class CompletedPanel extends JPanel {
 
-    public CompletedPanel() {
+    private DefaultTableModel completedTableModel;
+    private JTable completedTable;
+    private String userID;
+
+    public CompletedPanel(String userID) {
+        this.userID = userID;
         setLayout(new BorderLayout());
 
-        // Sample data for the table
+        // Column names for the table
         Vector<String> columnNames = new Vector<>();
         columnNames.add("Activity No");
         columnNames.add("Group ID");
+        columnNames.add("Group Name");
         columnNames.add("Activity Type ID");
-        columnNames.add("Activity Date");
-
-        Controller controller = new Controller();
-        Vector<Vector<String>> rowData = new Vector<>();
-        rowData = controller.passActivityToUI();
+        columnNames.add("Activity Name");
+        columnNames.add("Starting Date");
+        columnNames.add("Ending Date");
+        columnNames.add("Start Time");
+        columnNames.add("End Time");
+        columnNames.add("Score");
 
         // Completed activities table
-        DefaultTableModel completedTableModel = new DefaultTableModel(rowData, columnNames);
-        JTable completedTable = new JTable(completedTableModel);
+        completedTableModel = new DefaultTableModel(columnNames, 0);
+        completedTable = new JTable(completedTableModel);
         JScrollPane completedScrollPane = new JScrollPane(completedTable);
         add(completedScrollPane, BorderLayout.CENTER);
+
+        // Refresh button
+        JButton refreshButton = new JButton("Refresh");
+        refreshButton.addActionListener(e -> refreshCompletedActivities());
+        add(refreshButton, BorderLayout.SOUTH);
 
         // Add mouse listener to table for right-click context menu
         completedTable.addMouseListener(new MouseAdapter() {
@@ -66,9 +79,7 @@ public class CompletedPanel extends JPanel {
                                         "Media has been uploaded successfully with caption: " + caption);
                             }
                         });
-                        viewMediaItem.addActionListener(e1 -> {
-                            new MediaGalleryWindow();
-                        });
+                        viewMediaItem.addActionListener(e1 -> new MediaGalleryWindow());
                         popupMenu.add(feedbackItem);
                         popupMenu.add(uploadMediaItem);
                         popupMenu.add(viewMediaItem);
@@ -77,15 +88,31 @@ public class CompletedPanel extends JPanel {
                 }
             }
         });
+
+        // Initial load of completed activities
+        refreshCompletedActivities();
+    }
+
+    private void refreshCompletedActivities() {
+        // Clear existing data
+        completedTableModel.setRowCount(0);
+
+        // Get completed activities from the controller
+        Controller controller = new Controller();
+        Object[][] completedActivities = controller.getCompletedActivities(userID);
+
+        // Populate the table with the completed activities
+        for (Object[] activity : completedActivities) {
+            completedTableModel.addRow(activity);
+        }
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Completed Panel Test");
+            JFrame frame = new JFrame("Completed Activities");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.getContentPane().add(new CompletedPanel());
-            frame.setSize(400, 300);
-            frame.setLocationRelativeTo(null);
+            frame.setSize(800, 400);
+            frame.add(new CompletedPanel("user123")); // Pass a sample user ID
             frame.setVisible(true);
         });
     }

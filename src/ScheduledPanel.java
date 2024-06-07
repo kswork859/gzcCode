@@ -1,4 +1,5 @@
 package src;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -10,33 +11,44 @@ import java.util.Vector;
 
 public class ScheduledPanel extends JPanel {
 
-    public ScheduledPanel() {
+    private DefaultTableModel scheduledTableModel;
+    private JTable scheduledTable;
+    private String userID;
+    public ScheduledPanel()
+    {
+        
+    }
+
+    public ScheduledPanel(String userID) {
+        this.userID = userID;
         setLayout(new BorderLayout());
 
-        // Sample data for the table
+        // Column names for the table
         Vector<String> columnNames = new Vector<>();
+        columnNames.add("Group ID");
+        columnNames.add("Group Name");
+        columnNames.add("Activity No");
         columnNames.add("Activity Name");
-        columnNames.add("Date");
-        columnNames.add("Time");
-
-        Vector<Vector<String>> rowData = new Vector<>();
-        Vector<String> row1 = new Vector<>();
-        row1.add("Scheduled Activity 1");
-        row1.add("2024-05-20");
-        row1.add("10:00 AM");
-        Vector<String> row2 = new Vector<>();
-        row2.add("Scheduled Activity 2");
-        row2.add("2024-05-21");
-        row2.add("11:00 AM");
-
-        rowData.add(row1);
-        rowData.add(row2);
+        columnNames.add("Starting Date");
+        columnNames.add("Ending Date");
+        columnNames.add("Start Time");
+        columnNames.add("End Time");
 
         // Scheduled activities table
-        DefaultTableModel scheduledTableModel = new DefaultTableModel(rowData, columnNames);
-        JTable scheduledTable = new JTable(scheduledTableModel);
+        scheduledTableModel = new DefaultTableModel(columnNames, 0);
+        scheduledTable = new JTable(scheduledTableModel);
         JScrollPane scheduledScrollPane = new JScrollPane(scheduledTable);
         add(scheduledScrollPane, BorderLayout.CENTER);
+
+        // Refresh button
+        JButton refreshButton = new JButton("Refresh");
+        refreshButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                refreshScheduledActivities();
+            }
+        });
+        add(refreshButton, BorderLayout.SOUTH);
 
         // Add mouse listener for right-click context menu
         scheduledTable.addMouseListener(new MouseAdapter() {
@@ -50,6 +62,9 @@ public class ScheduledPanel extends JPanel {
                 }
             }
         });
+
+        // Initial load of scheduled activities
+        refreshScheduledActivities();
     }
 
     private void showPopupMenu(MouseEvent e, int row, DefaultTableModel tableModel) {
@@ -67,12 +82,26 @@ public class ScheduledPanel extends JPanel {
         popupMenu.show(e.getComponent(), e.getX(), e.getY());
     }
 
+    private void refreshScheduledActivities() {
+        // Clear existing data
+        scheduledTableModel.setRowCount(0);
+
+        // Get scheduled activities from the controller
+        Controller controller = new Controller();
+        Object[][] scheduledActivities = controller.getScheduledActivities(userID);
+
+        // Populate the table with the scheduled activities
+        for (Object[] activity : scheduledActivities) {
+            scheduledTableModel.addRow(activity);
+        }
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Scheduled Activities");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(400, 300);
-            frame.add(new ScheduledPanel());
+            frame.setSize(800, 400);
+            frame.add(new ScheduledPanel("user123")); // Pass a sample user ID
             frame.setVisible(true);
         });
     }

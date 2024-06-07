@@ -136,8 +136,8 @@ public class GreenZoneDashboard extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         JTabbedPane activityTabbedPane = new JTabbedPane();
 
-        CompletedPanel completedPanel = new CompletedPanel();
-        ScheduledPanel scheduledPanel = new ScheduledPanel();
+        CompletedPanel completedPanel = new CompletedPanel(userID);
+        ScheduledPanel scheduledPanel = new ScheduledPanel(userID);
         OrganizedPanel organizedPanel = new OrganizedPanel(userID);
         DefineActivityPanel defineActivityPanel = new DefineActivityPanel();
 

@@ -1,8 +1,12 @@
 package src;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 //import java.util.regex.*;
@@ -18,7 +22,6 @@ public class Controller {
         Admin group = new Admin();
         return group.deleteGroup(userID, groupID);
     }
-
 
     public String defineNewArea(String[] data) {
         Area newArea = new Area();
@@ -41,7 +44,6 @@ public class Controller {
     }
 
     public void sendAlert(String[] data) {
-        System.out.println("Khurram Shahzad is is Controller Class");
         Admin admin = new Admin();
         admin.sendAlerts(data);
     }
@@ -168,5 +170,12 @@ public class Controller {
             return "Error: " + e.getMessage();
         }
     }
-    
+    public Object[][] getScheduledActivities(String userID) {
+        Activity scheduleActivity = new Activity();
+        return scheduleActivity.getScheduledActivities(userID);
+    }
+    public Object[][] getCompletedActivities(String userID) {
+        Activity scheduleActivity = new Activity();
+        return scheduleActivity.getCompletedActivities(userID);
+    }
 }
