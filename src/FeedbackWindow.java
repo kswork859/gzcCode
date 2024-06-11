@@ -1,4 +1,5 @@
 package src;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,6 +10,10 @@ public class FeedbackWindow extends JFrame {
     private JTextArea feedbackTextArea;
 
     public FeedbackWindow() {
+
+    }
+
+    public FeedbackWindow(int activityNo) {
         setTitle("Provide Feedback");
         setSize(400, 200);
         setResizable(false); // Fixed window size
@@ -41,8 +46,13 @@ public class FeedbackWindow extends JFrame {
                 String feedback = feedbackTextArea.getText();
 
                 // Process the feedback and score here
+                System.out.println("Activity: " + activityNo);
                 System.out.println("Score: " + score);
                 System.out.println("Feedback: " + feedback);
+
+                // Update the database
+                Controller controller = new Controller();
+                controller.updateActivityFeedbackAndScore(activityNo, Double.parseDouble(score), feedback);
 
                 // Close the feedback window
                 dispose();
