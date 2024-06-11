@@ -14,9 +14,8 @@ public class ScheduledPanel extends JPanel {
     private DefaultTableModel scheduledTableModel;
     private JTable scheduledTable;
     private String userID;
-    public ScheduledPanel()
-    {
-        
+
+    public ScheduledPanel() {
     }
 
     public ScheduledPanel(String userID) {
@@ -52,8 +51,16 @@ public class ScheduledPanel extends JPanel {
 
         // Add mouse listener for right-click context menu
         scheduledTable.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                maybeShowPopup(e);
+            }
+
             public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
+                maybeShowPopup(e);
+            }
+
+            private void maybeShowPopup(MouseEvent e) {
+                if (e.isPopupTrigger() && SwingUtilities.isRightMouseButton(e)) {
                     int row = scheduledTable.rowAtPoint(e.getPoint());
                     if (row >= 0 && row < scheduledTable.getRowCount()) {
                         scheduledTable.setRowSelectionInterval(row, row);
@@ -74,6 +81,8 @@ public class ScheduledPanel extends JPanel {
         markAsCompletedItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int activityNo = (int) tableModel.getValueAt(row, 2); // Assuming "Activity No" is the third column
+                new FeedbackWindow(activityNo).setVisible(true);
                 tableModel.removeRow(row);
             }
         });
@@ -106,3 +115,4 @@ public class ScheduledPanel extends JPanel {
         });
     }
 }
+
