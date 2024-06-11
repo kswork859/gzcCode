@@ -421,4 +421,37 @@ public class Activity {
             return false;
         }
     }
+    public void updateActivityFeedbackAndScore(int activityNo, double score, String feedback) {
+        try {
+            // Establish database connection using DatabaseConnection class
+            Connection conn = DatabaseConnection.getConnection();
+
+            // Create the SQL query to update the table
+            String sql = "UPDATE oscactivity SET score = ?, activityFeedback = ? WHERE activityno = ?";
+
+            // Create a prepared statement
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            // Set parameters
+            pstmt.setDouble(1, score);
+            pstmt.setString(2, feedback);
+            pstmt.setInt(3, activityNo);
+
+            // Execute the update
+            int rowsAffected = pstmt.executeUpdate();
+
+            // Check if the update was successful
+            if (rowsAffected > 0) {
+                System.out.println("Activity feedback and score updated successfully.");
+            } else {
+                System.out.println("Failed to update activity feedback and score.");
+            }
+
+            // Close resources
+            pstmt.close();
+            conn.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 }
