@@ -2,11 +2,15 @@ package src;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class CreateGroupsPanel extends JPanel {
+
+    private JComboBox<String> countryComboBox;
+    private JComboBox<String> cityComboBox;
+    private JComboBox<String> areaComboBox;
 
     public CreateGroupsPanel(String userID) {
         System.out.println(userID);
@@ -43,7 +47,7 @@ public class CreateGroupsPanel extends JPanel {
         formPanel.add(countryLabel, gbc);
 
         gbc.gridx = 1;
-        JComboBox<String> countryComboBox = new JComboBox<>(countryNames.toArray(new String[0]));
+        countryComboBox = new JComboBox<>(countryNames.toArray(new String[0]));
         formPanel.add(countryComboBox, gbc);
 
         // City Names
@@ -53,7 +57,7 @@ public class CreateGroupsPanel extends JPanel {
         formPanel.add(cityLabel, gbc);
 
         gbc.gridx = 1;
-        JComboBox<String> cityComboBox = new JComboBox<>();
+        cityComboBox = new JComboBox<>();
         formPanel.add(cityComboBox, gbc);
 
         // Area Names
@@ -63,7 +67,7 @@ public class CreateGroupsPanel extends JPanel {
         formPanel.add(areaLabel, gbc);
 
         gbc.gridx = 1;
-        JComboBox<String> areaComboBox = new JComboBox<>();
+        areaComboBox = new JComboBox<>();
         formPanel.add(areaComboBox, gbc);
 
         // Save Button
@@ -72,6 +76,13 @@ public class CreateGroupsPanel extends JPanel {
         gbc.anchor = GridBagConstraints.EAST;
         JButton saveButton = new JButton("Save");
         formPanel.add(saveButton, gbc);
+
+        // Refresh Button
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        JButton refreshButton = new JButton("Refresh");
+        formPanel.add(refreshButton, gbc);
 
         // Add listeners
         countryComboBox.addActionListener(new ActionListener() {
@@ -104,6 +115,8 @@ public class CreateGroupsPanel extends JPanel {
             }
         });
 
+        refreshButton.addActionListener(e -> refreshComboBoxes(controller));
+
         saveButton.addActionListener(e -> {
             // Save action goes here
             String[] data = new String[5];
@@ -119,6 +132,35 @@ public class CreateGroupsPanel extends JPanel {
         });
 
         add(formPanel, BorderLayout.CENTER);
+    }
+
+    private void refreshComboBoxes(Controller controller) {
+        // Refresh country combo box
+        List<String> countryNames = controller.getCountryNames();
+        countryComboBox.removeAllItems();
+        for (String countryName : countryNames) {
+            countryComboBox.addItem(countryName);
+        }
+
+        // Refresh city combo box
+        if (countryComboBox.getSelectedItem() != null) {
+            String selectedCountry = (String) countryComboBox.getSelectedItem();
+            List<String> cityNames = controller.getCityNamesByCountry(selectedCountry);
+            cityComboBox.removeAllItems();
+            for (String cityName : cityNames) {
+                cityComboBox.addItem(cityName);
+            }
+        }
+
+        // Refresh area combo box
+        if (cityComboBox.getSelectedItem() != null) {
+            String selectedCity = (String) cityComboBox.getSelectedItem();
+            List<String> areaNames = controller.getAreaNamesByCity(selectedCity);
+            areaComboBox.removeAllItems();
+            for (String areaName : areaNames) {
+                areaComboBox.addItem(areaName);
+            }
+        }
     }
 
     public static void main(String[] args) {

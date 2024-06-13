@@ -49,6 +49,7 @@ public class CompletedPanel extends JPanel {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     int row = completedTable.rowAtPoint(e.getPoint());
                     if (row >= 0 && row < completedTable.getRowCount()) {
+                        completedTable.setRowSelectionInterval(row, row);
                         JPopupMenu popupMenu = new JPopupMenu();
                         JMenuItem feedbackItem = new JMenuItem("Give Feedback");
                         JMenuItem uploadMediaItem = new JMenuItem("Upload Multimedia");
@@ -69,14 +70,21 @@ public class CompletedPanel extends JPanel {
                                 System.out.println("Selected file: " + filePath);
                                 // Display caption input dialog
                                 String caption = JOptionPane.showInputDialog(null, "Enter caption for the media:");
-                                String[] data = new String[2];
-                                data[0] = caption;
-                                data[1] = filePath;
-                                Controller uploadmedia = new Controller();
-                                uploadmedia.uploadMultimedia(data);
-                                // Perform upload operation and display success message
-                                JOptionPane.showMessageDialog(null,
-                                        "Media has been uploaded successfully with caption: " + caption);
+                                if (caption != null) {
+                                    // Get the activity number from the selected row
+                                    int activityNo = (int) completedTable.getValueAt(row, 0);
+                                    // Prepare data to be uploaded
+                                    String[] data = new String[4];
+                                    data[0] = caption;
+                                    data[1] = filePath;
+                                    data[2] = userID;
+                                    data[3] = String.valueOf(activityNo);
+                                    Controller uploadMedia = new Controller();
+                                    uploadMedia.uploadMultimedia(data);
+                                    // Perform upload operation and display success message
+                                    JOptionPane.showMessageDialog(null,
+                                            "Media has been uploaded successfully with caption: " + caption);
+                                }
                             }
                         });
                         viewMediaItem.addActionListener(e1 -> new MediaGalleryWindow());
